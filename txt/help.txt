@@ -1,0 +1,8 @@
+Bomber Bot commands:```
+-join                       →  joins your voice channel
+-leave                      →  leaves your voice channel
+-tts language               →  see the TTS language list
+-tts language "language"    →  change the TTS language
+-tts language current       →  see the current TTS language
+-tts "text"                 →  TTS your text in your voice channel
+```
