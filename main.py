@@ -5,7 +5,7 @@ import os
 
 TOKEN = os.environ.get("TOKEN")
 
-client = bot = commands.Bot(command_prefix = '-')
+client = bot = commands.Bot(command_prefix = os.environ.get("PREFIX"))
 bot.remove_command('help')
 
 def load_cogs():
@@ -29,9 +29,9 @@ async def on_ready():
     print("Bomber Bot is running.")
     await client.change_presence(activity=discord.Game("version {}".format(os.environ.get("VERSION"))))
 
-@client.event
-async def on_command_error(ctx, error):
-    pass
+#@client.event
+#async def on_command_error(ctx, error):
+    #pass
 
 @client.command(aliases=["h"])
 async def help(ctx):

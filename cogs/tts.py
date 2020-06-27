@@ -4,6 +4,7 @@ import discord
 import modules.tts_module
 import functions
 import os
+from time import sleep
 
 class TextToSpeech(commands.Cog):
 
@@ -88,9 +89,7 @@ class TextToSpeech(commands.Cog):
                     audio_path = modules.tts_module.googleTTS(text, guildID, lang)
                 await ctx.message.add_reaction(emoji="\u2705")
                 voice.play(discord.FFmpegPCMAudio(audio_path))
-                while voice.is_playing():
-                    pass
-                os.unlink(audio_path)
+
                 voice.source = discord.PCMVolumeTransformer(voice.source)
                 voice.source.volume = 0.70
 
