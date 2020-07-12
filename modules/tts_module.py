@@ -4,8 +4,7 @@ import os
 
 def googleTTS(text : str, path : str, language : str):
     audio = gTTS(text=text, lang=language)
-    audio_path = "audio/{}.mp3".format(path)
-    open(audio_path, "w")
+    audio_path = "{}.mp3".format(path)
     audio.save(audio_path)
     return audio_path
 

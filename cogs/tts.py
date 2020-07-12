@@ -83,10 +83,10 @@ class TextToSpeech(commands.Cog):
                 guildID = ctx.message.guild.id
                 lang = functions.getLanguage(guildID)
                 polly = functions.getPolly()
-                if lang in polly:
-                    audio_path = modules.tts_module.polly(text, guildID, polly[lang])
-                else:
-                    audio_path = modules.tts_module.googleTTS(text, guildID, lang)
+                #if lang in polly:
+                    #audio_path = modules.tts_module.polly(text, guildID, polly[lang])
+                #else:
+                audio_path = modules.tts_module.googleTTS(text, guildID, lang)
                 await ctx.message.add_reaction(emoji="\u2705")
                 voice.play(discord.FFmpegPCMAudio(audio_path))
 
