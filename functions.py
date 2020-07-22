@@ -1,6 +1,10 @@
 import json
 import datetime
 
+def getConfig():
+    config = json.load(open("json/config.json"))
+    return config
+
 def getHelpMessage():
     help = open("txt/help.txt").read()
     return help
