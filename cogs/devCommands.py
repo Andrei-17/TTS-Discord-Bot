@@ -1,14 +1,43 @@
 from discord.ext import commands
 from discord.utils import get
 import discord
-import main
 import functions
 import datetime
+import main
 
 class DevCommands(commands.Cog):
+    months = {
+        "01":"January",
+        "02":"February",
+        "03":"March",
+        "04":"April",
+        "05":"May",
+        "06":"June",
+        "07":"July",
+        "08":"August",
+        "09":"September",
+        "10":"October",
+        "11":"November",
+        "12":"December"
+    }
 
     def __init__(self, client):
         self.client = client
+
+    async def isDev(ctx):
+        config = functions.getConfig()
+        if ctx.message.author.guild.id == config["myGuild"]:
+            for role in ctx.message.author.roles:
+                if role.id == config["developer"]:
+                    return True
+        return False
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        config = functions.getConfig()
+        self.myGuild = get(self.client.guilds, id=config["myGuild"])
+        self.myLog = get(self.myGuild.channels, id=config["myLog"])
+        self.devRole = get(self.myGuild.roles, id=config["developer"])
 
     def getRegionText(self, region):
         text = str(region)
@@ -51,8 +80,13 @@ class DevCommands(commands.Cog):
         embed.set_author(name="Error!", url="https://discordapp.com", icon_url="https://i.ibb.co/vPCz0jL/706450053656608768.gif")
         return embed
 
+    def getGuildJoinTime(self, guild):
+        dateList = str(datetime.datetime.utcfromtimestamp(guild.me.joined_at.timestamp())).split()
+        date = dateList[0].split("-")
+        return f"{date[2]} {self.months[date[1]]} {date[0]} at {dateList[1][:-10]}"
+
     @commands.command()
-    @commands.check(main.isDev)
+    @commands.check(isDev)
     async def guilds(self, ctx):
         guilds = self.client.guilds
         messages = []
@@ -73,45 +107,38 @@ class DevCommands(commands.Cog):
             message += "\u0060\u0060\u0060"
             messages.append(message)
         await ctx.send("Current guilds: {}".format(len(guilds)))
-        print(messages)
         for elem in messages:
             await ctx.send(elem)
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        config = functions.getConfig()
-        myGuild = get(self.client.guilds, id=config["myGuild"])
-        myLog = get(myGuild.channels, id=config["myLog"])
         embed = discord.Embed(title=str(guild), colour=discord.Colour(0x497aad),
-                              description=f":crown: **Owner**: <@{guild.owner_id}>\n:man_raising_hand: **Users**: {len(guild.members)}\n:robot: **Bots**: {self.getBots(guild)}\n\n:globe_with_meridians: **Region**: {self.getRegionText(guild.region)}\n",
+                              description=f":crown: **Owner**: <@{guild.owner_id}>\n:man_raising_hand: **Users**: {len(guild.members)}\n:robot: **Bots**: {self.getBots(guild)}\n\n:globe_with_meridians: **Region**: {self.getRegionText(guild.region)}\n:bar_chart: **Total servers**: {len(self.client.guilds)}",
                               timestamp=datetime.datetime.utcfromtimestamp(datetime.datetime.now().timestamp()))
         embed.set_thumbnail(url=guild.icon_url)
         embed.set_author(name="Just joined a new server!", icon_url="https://i.ibb.co/MP2yJy8/509735362994896924.gif")
         embed.set_footer(text=str(guild.id))
 
-        await myLog.send(embed=embed)
+        await self.myLog.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-        config = functions.getConfig()
-        myGuild = get(self.client.guilds, id=config["myGuild"])
-        myLog = get(myGuild.channels, id=config["myLog"])
         embed = discord.Embed(title=str(guild), colour=discord.Colour(0xc76c5a),
-                              description=f":crown: **Owner**: <@{guild.owner_id}>\n:man_raising_hand: **Users**: {len(guild.members)}\n:robot: **Bots**: {self.getBots(guild)}\n\n:globe_with_meridians: **Region**: {self.getRegionText(guild.region)}\n",
+                              description=f":crown: **Owner**: <@{guild.owner_id}>\n:man_raising_hand: **Users**: {len(guild.members)}\n:robot: **Bots**: {self.getBots(guild)}\n\n:globe_with_meridians: **Region**: {self.getRegionText(guild.region)}\n:bar_chart: **Total servers**: {len(self.client.guilds)}",
                               timestamp=datetime.datetime.utcfromtimestamp(datetime.datetime.now().timestamp()))
         embed.set_thumbnail(url=guild.icon_url)
         embed.set_author(name="Just been kicked from a server!", icon_url="https://i.ibb.co/8Y0W9Fk/angery.gif")
         embed.set_footer(text=str(guild.id))
 
-        await myLog.send(embed=embed)
+        await self.myLog.send(embed=embed)
 
     @commands.command()
-    @commands.check(main.isDev)
+    @commands.check(isDev)
     async def info(self, ctx, id):
         if id.isdecimal():
             guild = get(self.client.guilds, id=int(id))
             if guild != None:
-                embed = discord.Embed(colour=discord.Colour(0x497aad), description=f":crown: **Owner**: <@{guild.owner_id}>\n:man_raising_hand: **Users**: {len(guild.members)}\n:robot: **Bots**: {self.getBots(guild)}\n\n:globe_with_meridians: **Region**: {self.getRegionText(guild.region)}\n\n<:arrowroles:735564270552744098> **Bot Roles** <:arrowroles:735564270552744098>{self.getGuildRoles(guild)}")
+                embed = discord.Embed(colour=discord.Colour(0x497aad), description=f":crown: **Owner**: <@{guild.owner_id}>\n:man_raising_hand: **Users**: {len(guild.members)}\n:robot: **Bots**: {self.getBots(guild)}\n\n:globe_with_meridians: **Region**: {self.getRegionText(guild.region)}\n:date: **Joined**: {self.getGuildJoinTime(guild)}\n\n<:arrowroles:735564270552744098> **Bot Roles** <:arrowroles:735564270552744098>{self.getGuildRoles(guild)}")
                 embed.set_thumbnail(url=guild.icon_url)
                 embed.set_author(name=str(guild))
             else:
@@ -121,7 +148,7 @@ class DevCommands(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    @commands.check(main.isDev)
+    @commands.check(isDev)
     async def presence(self, ctx, activity):
         activity = activity.lower()
         if activity == "online":

@@ -75,10 +75,16 @@ class TextToSpeech(commands.Cog):
                 if not voice.channel.id == channel.id:
                     await voice.move_to(channel)
             else:
-                voice = await channel.connect()
+                try:
+                    voice = await channel.connect()
+                except:
+                    pass
             if voice.is_playing():
                 await ctx.send(f"<@{ctx.message.author.id}>, the previous command is not done yet.")
-                await ctx.message.add_reaction(emoji="\u274c")
+                config = functions.getConfig()
+                myGuild = get(self.client.guilds, id=config["myGuild"])
+                emoji = get(myGuild.emojis, name="redTick")
+                await ctx.message.add_reaction(emoji=emoji)
             else:
                 guildID = ctx.message.guild.id
                 lang = functions.getLanguage(guildID)
@@ -87,7 +93,10 @@ class TextToSpeech(commands.Cog):
                     #audio_path = modules.tts_module.polly(text, guildID, polly[lang])
                 #else:
                 audio_path = modules.tts_module.googleTTS(text, guildID, lang)
-                await ctx.message.add_reaction(emoji="\u2705")
+                config = functions.getConfig()
+                myGuild = get(self.client.guilds, id=config["myGuild"])
+                emoji = get(myGuild.emojis, name="greenTick")
+                await ctx.message.add_reaction(emoji=emoji)
                 voice.play(discord.FFmpegPCMAudio(audio_path))
 
                 voice.source = discord.PCMVolumeTransformer(voice.source)
