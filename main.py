@@ -4,8 +4,7 @@ import discord
 import functions
 import os
 
-#TOKEN = os.environ.get("TOKEN")
-TOKEN = "NzI0MDM5OTM4MjY1NTc5NTUx.XxgfsA.nYviiYfl-dcrFBPnch1cqLfwwkQ"
+TOKEN = os.environ.get("TOKEN")
 
 client = bot = commands.Bot(command_prefix = os.environ.get("PREFIX"))
 bot.remove_command('help')
